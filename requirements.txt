@@ -1,1 +1,8 @@
-Flask
+flask
+opencv-python-headless
+numpy
+pandas
+scikit-learn
+pillow
+python-dotenv
+reportlab

@@ -20,12 +20,26 @@ from modules.translations import TranslationService
 from screening_core import PROCESSED_DIR, KneeRiskAnalyzer
 
 
+import tempfile
+
 PROJECT_ROOT = Path(__file__).resolve().parent
-UPLOAD_DIR = PROJECT_ROOT / "uploads"
-REPORTS_DIR = PROJECT_ROOT / "reports"
-UPLOAD_DIR.mkdir(exist_ok=True)
-REPORTS_DIR.mkdir(exist_ok=True)
-PROCESSED_DIR.mkdir(exist_ok=True)
+try:
+    UPLOAD_DIR = PROJECT_ROOT / "uploads"
+    REPORTS_DIR = PROJECT_ROOT / "reports"
+    UPLOAD_DIR.mkdir(exist_ok=True)
+    REPORTS_DIR.mkdir(exist_ok=True)
+    PROCESSED_DIR.mkdir(exist_ok=True)
+except OSError:
+    tmp = Path(tempfile.gettempdir())
+    UPLOAD_DIR = tmp / "uploads"
+    REPORTS_DIR = tmp / "reports"
+    UPLOAD_DIR.mkdir(exist_ok=True)
+    REPORTS_DIR.mkdir(exist_ok=True)
+    try:
+        PROCESSED_DIR.mkdir(exist_ok=True)
+    except OSError:
+        pass
+
 
 ALLOWED_IMAGE_EXTENSIONS = {"png", "jpg", "jpeg", "bmp", "webp"}
 ALLOWED_VIDEO_EXTENSIONS = {"mp4", "avi", "mov", "mkv", "wmv", "webm"}

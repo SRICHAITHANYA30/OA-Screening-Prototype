@@ -4,7 +4,11 @@ import json
 from pathlib import Path
 from typing import Any
 
-import lightgbm as lgb
+try:
+    import lightgbm as lgb
+except Exception:
+    lgb = None
+
 
 
 MODEL_DIR = Path(__file__).resolve().parent.parent / "models"

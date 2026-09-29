@@ -7,15 +7,24 @@ from pathlib import Path
 from typing import Any
 
 
-DB_PATH = Path(__file__).resolve().parent.parent / "data" / "patients.db"
-DB_PATH.parent.mkdir(exist_ok=True)
+import tempfile
+
+try:
+    DB_PATH = Path(__file__).resolve().parent.parent / "data" / "patients.db"
+    DB_PATH.parent.mkdir(exist_ok=True)
+except OSError:
+    DB_PATH = Path(tempfile.gettempdir()) / "patients.db"
 
 
 class PatientDatabase:
     def __init__(self, database_path: str | Path | None = None):
         self.database_path = Path(database_path) if database_path else DB_PATH
-        self.database_path.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            self.database_path.parent.mkdir(parents=True, exist_ok=True)
+        except OSError:
+            self.database_path = Path(tempfile.gettempdir()) / self.database_path.name
         self._initialize_db()
+
 
     def _connect(self) -> sqlite3.Connection:
         conn = sqlite3.connect(self.database_path)

@@ -5,7 +5,16 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-import cv2
+import tempfile
+
+try:
+    import cv2
+except Exception as exc:  # pragma: no cover
+    cv2 = None
+    CV2_IMPORT_ERROR = str(exc)
+else:
+    CV2_IMPORT_ERROR = None
+
 import numpy as np
 
 try:
@@ -18,8 +27,13 @@ else:
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent
-PROCESSED_DIR = PROJECT_ROOT / "processed_outputs"
-PROCESSED_DIR.mkdir(exist_ok=True)
+try:
+    PROCESSED_DIR = PROJECT_ROOT / "processed_outputs"
+    PROCESSED_DIR.mkdir(exist_ok=True)
+except OSError:
+    PROCESSED_DIR = Path(tempfile.gettempdir()) / "processed_outputs"
+    PROCESSED_DIR.mkdir(exist_ok=True)
+
 
 
 @dataclass
