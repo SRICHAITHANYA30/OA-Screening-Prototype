@@ -1,2 +1,11 @@
+[project]
+name = "oa-screening-prototype"
+version = "0.1.0"
+description = "OA Screening Prototype"
+requires-python = ">=3.10"
+dependencies = [
+    "flask"
+]
+
 [tool.vercel]
 entrypoint = "web_app:app"
