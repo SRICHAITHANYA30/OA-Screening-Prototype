@@ -78,7 +78,11 @@ class KneeRiskAnalyzer:
     def __init__(self):
         self.model = None
         if YOLO is not None:
-            self.model = YOLO("yolov8n-pose.pt")
+            try:
+                self.model = YOLO("yolov8n-pose.pt")
+            except Exception:
+                self.model = None
+
 
         self.landmark_names = {
             "left_hip": 11,

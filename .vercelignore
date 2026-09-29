@@ -1,0 +1,11 @@
+.venv/
+swasthgati_env/
+__pycache__/
+*.pyc
+*.pt
+data/*.db
+uploads/
+reports/
+processed_outputs/
+.qodo/
+.git/
