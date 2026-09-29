@@ -1,0 +1,13 @@
+numpy
+pandas
+scikit-learn
+lightgbm
+xgboost
+flask
+opencv-python
+ultralytics
+pillow
+pyserial
+cryptography
+python-dotenv
+reportlab

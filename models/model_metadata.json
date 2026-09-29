@@ -1,0 +1,5 @@
+{
+  "feature_order": ["age", "pain_score", "mobility_score", "stiffness_score", "bmi"],
+  "status": "not_trained",
+  "message": "AI model not trained / OAI dataset unavailable."
+}

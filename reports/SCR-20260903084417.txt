@@ -1,0 +1,16 @@
+SwasthGati Preliminary OA Screening Report
+Patient ID: PT-PDF-001
+Name: PDF Test Patient
+Age/Sex: 50 / Male
+Location: Shillong, Meghalaya
+
+Clinical results
+Pain score: 55.0, Mobility score: 50.0
+Left knee angle: 155.0, Right knee angle: 165.0
+Symmetry: 84.0%
+Risk level: MODERATE
+AI status: AI model not trained / OAI dataset unavailable.
+
+Medical disclaimer: AI-assisted screening only — not a medical diagnosis.
+"
+        f"This preliminary assessment is intended to support field screening and clinical review.

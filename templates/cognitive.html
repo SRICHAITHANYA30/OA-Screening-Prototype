@@ -1,0 +1,483 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Smirthi | Cognitive Companion for Elders</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='cognitive.css') }}" />
+  <style>
+    /* ---------- Splash & Login ---------- */
+    .splash-overlay {
+      position: fixed; inset: 0; z-index: 900;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      background: linear-gradient(160deg, #fdf6ec, #f6e9d4);
+      padding: 24px; overflow-y: auto;
+    }
+    .splash-overlay.hidden { display: none !important; }
+    .splash-hero { text-align: center; margin-bottom: 28px; }
+    .splash-hero .brand-logo { font-size: 64px; display: block; margin-bottom: 8px; }
+    .splash-hero h1 { font-size: 34px; color: var(--primary-dark); margin: 0 0 4px; }
+    .splash-hero p { font-size: 18px; color: var(--muted); margin: 0; }
+    .language-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 16px; width: 100%; max-width: 820px; margin-bottom: 28px;
+    }
+    .lang-card {
+      border: 3px solid var(--line); background: var(--card);
+      border-radius: 20px; padding: 24px 18px; text-align: center;
+      cursor: pointer; transition: all 0.2s ease;
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      min-height: 110px; justify-content: center;
+    }
+    .lang-card:hover { border-color: var(--primary); transform: translateY(-3px); box-shadow: 0 12px 30px rgba(0,0,0,0.10); }
+    .lang-card.selected { border-color: var(--primary); background: var(--primary-soft); box-shadow: 0 8px 24px rgba(217,119,6,0.25); }
+    .lang-card .native { font-size: 26px; font-weight: 800; color: var(--text); line-height: 1.2; }
+    .lang-card .english { font-size: 14px; color: var(--muted); }
+    .splash-continue {
+      margin-top: 4px; padding: 16px 48px; font-size: 20px;
+    }
+
+    /* Login */
+    .login-overlay {
+      position: fixed; inset: 0; z-index: 850;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      background: linear-gradient(160deg, #fdf6ec, #f6e9d4);
+      padding: 24px; overflow-y: auto;
+    }
+    .login-overlay.hidden { display: none !important; }
+    .login-card {
+      background: var(--card); border: 1px solid var(--line);
+      border-radius: var(--radius); padding: 32px 28px;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.10);
+      width: 100%; max-width: 480px;
+    }
+    .login-card h2 { text-align: center; color: var(--primary-dark); margin: 0 0 6px; font-size: 28px; }
+    .login-card .subtitle { text-align: center; color: var(--muted); margin: 0 0 20px; font-size: 16px; }
+    .login-tabs {
+      display: flex; gap: 0; margin-bottom: 22px; border-radius: 16px; overflow: hidden;
+      border: 2px solid var(--line);
+    }
+    .login-tab {
+      flex: 1; padding: 14px; text-align: center; font-weight: 800; font-size: 17px;
+      cursor: pointer; border: none; background: var(--bg-soft); color: var(--muted);
+      transition: all 0.2s;
+    }
+    .login-tab.active { background: var(--primary); color: #fff; }
+    .login-form { display: flex; flex-direction: column; gap: 14px; }
+    .login-form label { display: flex; flex-direction: column; font-size: 15px; font-weight: 700; color: var(--muted); gap: 5px; }
+    .login-form input, .login-form select {
+      font-size: 18px; padding: 14px; border: 1px solid var(--line);
+      border-radius: 12px; font-family: inherit; background: var(--card); color: var(--text);
+    }
+    .login-form input:focus, .login-form select:focus { outline: 2px solid var(--primary); border-color: var(--primary); }
+    .login-form input[type="password"] { letter-spacing: 6px; font-size: 24px; text-align: center; }
+    .login-error { color: var(--bad); font-weight: 700; text-align: center; font-size: 15px; min-height: 18px; }
+    .login-submit { margin-top: 6px; }
+    .login-skip { text-align: center; margin-top: 14px; }
+    .login-skip button { background: none; border: none; color: var(--muted); font-size: 15px; cursor: pointer; text-decoration: underline; }
+
+    /* Coin chips */
+    .coin-display {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-weight: 800; font-size: 18px; color: #b45309;
+    }
+    .coin-display .coin-ico { font-size: 22px; }
+    .coin-badge {
+      background: #fef3c7; border: 1px solid #fcd34d;
+      border-radius: 999px; padding: 8px 18px; font-weight: 800;
+      color: #92400e; font-size: 18px;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .coin-badge .coin-ico { font-size: 22px; }
+    .coin-chip {
+      background: var(--card); border: 2px solid var(--primary);
+      color: var(--primary-dark); border-radius: 999px;
+      padding: 8px 18px; font-weight: 800; font-size: 18px;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .coin-earn-pop {
+      animation: coinPop 0.9s ease forwards;
+      display: inline-flex; align-items: center; gap: 4px;
+    }
+    @keyframes coinPop {
+      0%   { transform: scale(0.3); opacity: 0; }
+      30%  { transform: scale(1.3); opacity: 1; }
+      100% { transform: scale(1); opacity: 0; }
+    }
+
+    /* Notifications */
+    .notif-bell-btn { position: relative; padding: 10px 14px; }
+    .notif-badge {
+      position: absolute; top: 4px; right: 4px;
+      background: var(--bad); color: #fff;
+      border-radius: 999px; min-width: 22px; height: 22px;
+      font-size: 13px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      padding: 0 5px;
+    }
+    .notif-list { display: flex; flex-direction: column; gap: 8px; }
+    .notif-item {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 12px 14px; border-radius: 14px;
+      background: var(--bg-soft); border: 1px solid var(--line);
+      font-size: 15px;
+    }
+    .notif-item.unread { background: var(--primary-soft); border-color: var(--primary); }
+    .notif-item .notif-ico { font-size: 26px; flex-shrink: 0; }
+    .notif-item .notif-body { flex: 1; }
+    .notif-item .notif-body strong { display: block; font-size: 15px; color: var(--text); }
+    .notif-item .notif-body small { color: var(--muted); font-size: 13px; }
+
+    /* Reminder meta row */
+    .reminder-meta { color: var(--muted); font-size: 14px; display: flex; flex-wrap: wrap; gap: 8px; }
+    .status-badge { border-radius: 999px; padding: 3px 12px; font-size: 13px; font-weight: 800; }
+    .status-badge.on { background: #ecfdf5; color: #065f46; }
+    .status-badge.off { background: #e7e5e4; color: #57534e; }
+    .status-badge.due { background: #fef3c7; color: #92400e; }
+
+    /* Caregiver patient summary */
+    .cg-patient-card { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .cg-patient-avatar { font-size: 52px; }
+    .cg-patient-card strong { font-size: 24px; display: block; }
+    .cg-patient-card small { color: var(--muted); font-size: 15px; }
+
+    /* Activity feed */
+    .activity-feed-card { margin-bottom: 18px; }
+    .activity-feed-card h3 { color: var(--primary-dark); margin: 0 0 12px; }
+    .activity-feed-list { display: flex; flex-direction: column; gap: 8px; max-height: 320px; overflow-y: auto; }
+    .activity-item {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 12px 14px; border-radius: 14px;
+      background: var(--bg-soft); border: 1px solid var(--line);
+      font-size: 15px;
+    }
+    .activity-item .act-icon { font-size: 28px; flex-shrink: 0; }
+    .activity-item .act-body { flex: 1; }
+    .activity-item .act-body strong { display: block; font-size: 15px; color: var(--text); }
+    .activity-item .act-body small { color: var(--muted); font-size: 13px; }
+    .activity-empty { text-align: center; color: var(--muted); padding: 24px; font-size: 16px; }
+
+    .pdf-btn-wrap { text-align: center; margin-bottom: 18px; }
+  </style>
+</head>
+<body data-lang="en" data-level="1">
+
+  <!-- ========== LANGUAGE SPLASH SCREEN ========== -->
+  <div class="splash-overlay" id="splashScreen">
+    <div class="splash-hero">
+      <span class="brand-logo">🧠</span>
+      <h1>Smirthi</h1>
+      <p data-i18n="tagline">Cognitive Companion for Elders</p>
+    </div>
+    <p style="font-size:18px;color:var(--muted);margin-bottom:16px;font-weight:700;" data-i18n="splash_title">Choose your language</p>
+    <div class="language-grid" id="languageGrid"></div>
+    <button class="btn primary big splash-continue" id="splashContinueBtn" data-i18n="splash_continue">Continue</button>
+  </div>
+
+  <!-- ========== LOGIN SCREEN ========== -->
+  <div class="login-overlay hidden" id="loginScreen">
+    <div class="login-card">
+      <h2 id="loginTitle">Welcome to Smirthi</h2>
+      <p class="subtitle" id="loginSubtitle">Sign in with your phone number</p>
+      <div class="login-tabs">
+        <button class="login-tab active" id="loginTabPatient" data-role="patient">I am a Patient</button>
+        <button class="login-tab" id="loginTabCaregiver" data-role="caregiver">I am a Caregiver</button>
+      </div>
+      <div class="login-form">
+        <label id="labelPhone">Phone Number
+          <input type="tel" id="loginPhone" placeholder="e.g. 9876543210" maxlength="15" />
+        </label>
+        <label id="labelPin">Safety PIN (4 digits)
+          <input type="password" id="loginPin" inputmode="numeric" pattern="[0-9]{4,6}" maxlength="6" placeholder="••••" autocomplete="off" />
+        </label>
+        <div id="loginNameWrap">
+          <label id="labelName">Your Name
+            <input type="text" id="loginName" placeholder="Full name" />
+          </label>
+        </div>
+        <div class="login-error" id="loginError"></div>
+        <button class="btn primary big login-submit" id="loginSubmitBtn">Sign In</button>
+      </div>
+      <div class="login-skip">
+        <button id="loginSkipBtn">Skip for now</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== MAIN APP ========== -->
+  <div id="mainApp" class="hidden">
+
+    <div class="app-topbar">
+      <div class="brand">
+        <span class="brand-logo">🧠</span>
+        <div>
+          <strong id="appName">Smirthi</strong>
+          <small id="tagline">Cognitive companion for elders</small>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <button class="coin-badge hidden" id="topCoinsChip" title="Your coins"><span class="coin-ico">🪙</span> <span id="topCoinsValue">0</span></button>
+        <button class="icon-btn voice-btn" id="voiceToggleBtn" title="Voice Assistant">🔊 <span id="voiceState">ON</span></button>
+        <button class="icon-btn" id="largeTextBtn" title="Large Text">🔠</button>
+        <button class="icon-btn" id="contrastBtn" title="High Contrast">◐</button>
+        <a class="back-link" href="/" target="_blank" id="swasthGatiLink">↩ SwasthGati</a>
+        <button class="icon-btn danger-tint" id="logoutBtn" title="Log out">🚪 <span id="logoutLabel">Logout</span></button>
+      </div>
+    </div>
+
+    <div class="offline-banner hidden" id="offlineBanner">📡 Offline Mode — Your activity is saved and will sync when you reconnect.</div>
+
+    <nav class="tab-bar">
+      <button class="tab active" data-tab="games">🎮 <span class="tab-label" data-i18n="games_tab">Games</span></button>
+      <button class="tab" data-tab="progress">📈 <span class="tab-label" data-i18n="dashboard_tab">My Progress</span></button>
+      <button class="tab" data-tab="reminders">🔔 <span class="tab-label" data-i18n="reminders_tab">Reminders</span></button>
+      <button class="tab" data-tab="caregiver">👩‍⚕️ <span class="tab-label" data-i18n="caregiver_tab">Caregiver</span></button>
+      <button class="tab" data-tab="settings">⚙️ <span class="tab-label" data-i18n="settings_tab">Settings</span></button>
+    </nav>
+
+    <main class="content">
+      <!-- Patient bar -->
+      <section class="patient-bar card" id="patientBar">
+        <div class="patient-info">
+          <span class="avatar" id="patientAvatar">🧓</span>
+          <div>
+            <strong id="patientNameDisplay">Elder</strong>
+            <small id="patientMeta">Select or register a patient below</small>
+          </div>
+        </div>
+        <div class="patient-quick">
+          <select id="patientSelector" class="big-select"><option value="">Choose Patient</option></select>
+          <button class="btn small" id="registerPatientBtn">➕ Register</button>
+        </div>
+      </section>
+
+      <!-- GAMES TAB -->
+      <section id="tab-games" class="tab-panel active">
+        <div class="games-intro">
+          <h1 id="gamesTitle">Pick a game for your daily brain exercise 🧠</h1>
+          <p id="gamesSubtitle">Every game helps your memory, attention and recognition.</p>
+        </div>
+        <div class="game-grid" id="gameGrid"></div>
+        <div id="gameArea" class="game-area hidden"></div>
+      </section>
+
+      <!-- PROGRESS TAB -->
+      <section id="tab-progress" class="tab-panel">
+        <div class="progress-overview card">
+          <div class="stat-tile">
+            <span class="stat-label">Games Today</span>
+            <strong id="statGamesToday">0</strong>
+          </div>
+          <div class="stat-tile">
+            <span class="stat-label">Total Games</span>
+            <strong id="statTotalGames">0</strong>
+          </div>
+          <div class="stat-tile">
+            <span class="stat-label">Avg Score</span>
+            <strong id="statAvgScore">0</strong>
+          </div>
+          <div class="stat-tile">
+            <span class="stat-label">Accuracy</span>
+            <strong id="statAccuracy">0%</strong>
+          </div>
+          <div class="stat-tile">
+            <span class="stat-label">Time Played</span>
+            <strong id="statMinutes">0 min</strong>
+          </div>
+          <div class="stat-tile">
+            <span class="stat-label">Trend</span>
+            <strong id="statTrend">—</strong>
+          </div>
+          <div class="stat-tile">
+            <span class="stat-label">Coins Today</span>
+            <strong id="statCoinsToday">0 🪙</strong>
+          </div>
+          <div class="stat-tile">
+            <span class="stat-label">Total Coins</span>
+            <strong id="statCoinsTotal">0 🪙</strong>
+          </div>
+        </div>
+        <div class="progress-detail card">
+          <h2>Recent Scores</h2>
+          <div id="recentScores" class="recent-scores"></div>
+          <h2>Game Breakdown</h2>
+          <div id="gameBreakdown" class="game-breakdown"></div>
+        </div>
+      </section>
+
+      <!-- REMINDERS TAB -->
+      <section id="tab-reminders" class="tab-panel">
+        <div class="reminders-header card">
+          <h2>🔔 Reminders</h2>
+          <p>Medicines, water, daily activities and appointments — never miss a beat.</p>
+          <button class="btn primary" id="addReminderBtn">➕ Add Reminder</button>
+        </div>
+        <div id="reminderList" class="reminder-list"></div>
+        <div id="todaySchedule" class="today-schedule card">
+          <h2>Today's Schedule</h2>
+          <div id="scheduleList"></div>
+        </div>
+      </section>
+
+      <!-- CAREGIVER TAB -->
+      <section id="tab-caregiver" class="tab-panel">
+        <div class="caregiver-header card">
+          <h2>👩‍⚕️ Caregiver & Healthcare Monitoring</h2>
+          <p>Monitor cognitive progress, engagement, alerts and medication adherence.</p>
+        </div>
+        <div class="caregiver-grid">
+          <div class="caregiver-card card">
+            <h3>👤 Patient</h3>
+            <div class="cg-patient-card" id="cgPatientInfo">
+              <span class="cg-patient-avatar">🧓</span>
+              <div>
+                <strong id="cgPatientName">—</strong>
+                <small id="cgPatientMeta">—</small>
+              </div>
+            </div>
+          </div>
+          <div class="caregiver-card card">
+            <h3>🧠 Cognitive Health Score</h3>
+            <div class="health-score-wrap"><span id="healthScore">0</span><small>/100</small></div>
+            <div class="health-bar"><div class="health-fill" id="healthBar"></div></div>
+          </div>
+          <div class="caregiver-card card">
+            <h3>📊 Overall Statistics</h3>
+            <div id="caregiverStats" class="caregiver-stats"></div>
+          </div>
+          <div class="caregiver-card card">
+            <h3>📝 Recent Sessions</h3>
+            <div id="caregiverSessions" class="caregiver-sessions"></div>
+          </div>
+          <div class="caregiver-card card">
+            <h3>📅 Weekly Activity</h3>
+            <div id="weeklyActivity" class="weekly-grid"></div>
+          </div>
+        </div>
+
+        <!-- Live Activity Feed -->
+        <div class="caregiver-card card activity-feed-card">
+          <h3>🔴 Live Activity</h3>
+          <div id="activityFeed" class="activity-feed-list">
+            <div class="activity-empty">No recent activity.</div>
+          </div>
+        </div>
+
+        <!-- Notifications -->
+        <div class="caregiver-card card activity-feed-card">
+          <h3>🔔 Notifications <span class="status-badge on" id="notifCount">0</span></h3>
+          <div id="notifList" class="notif-list">
+            <div class="activity-empty">No notifications yet.</div>
+          </div>
+        </div>
+
+        <!-- PDF Download -->
+        <div class="pdf-btn-wrap">
+          <button class="btn primary big" id="downloadPdfBtn">📄 Download PDF Report</button>
+        </div>
+
+        <div class="alert-panel card">
+          <h3>⚠️ Alerts</h3>
+          <div id="alertList"></div>
+        </div>
+      </section>
+
+      <!-- SETTINGS TAB -->
+      <section id="tab-settings" class="tab-panel">
+        <div class="settings-card card">
+          <h2>⚙️ Settings</h2>
+          <div class="setting-row">
+            <label for="languageSelect">🌐 Language</label>
+            <select id="languageSelect" class="big-select"></select>
+          </div>
+          <div class="setting-row">
+            <span>🔊 Voice Assistant</span>
+            <label class="switch"><input type="checkbox" id="voiceCheck" checked /><span></span></label>
+          </div>
+          <div class="setting-row">
+            <span>🔠 Large Text Mode</span>
+            <label class="switch"><input type="checkbox" id="largeCheck" /><span></span></label>
+          </div>
+          <div class="setting-row">
+            <span>◐ High Contrast Theme</span>
+            <label class="switch"><input type="checkbox" id="contrastCheck" /><span></span></label>
+          </div>
+          <div class="setting-row">
+            <span>💾 Offline Storage</span>
+            <span class="value-chip" id="storageChip">Available</span>
+          </div>
+          <button class="btn ghost" id="syncNowBtn">📡 Sync Now</button>
+          <div class="setting-row">
+            <span>🚪 Sign Out</span>
+            <button class="btn danger" id="logoutBtnSettings">Logout</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Registration modal -->
+  <div class="modal-overlay hidden" id="registerModal">
+    <div class="modal card">
+      <h2>Register Elder Patient</h2>
+      <div class="modal-form">
+        <label>Patient ID <input id="regPatientId" placeholder="e.g. P001" /></label>
+        <label>Name <input id="regName" placeholder="Full name" /></label>
+        <label>Age <input id="regAge" type="number" min="50" max="120" placeholder="60" /></label>
+        <label>Sex
+          <select id="regSex"><option value="">Select</option><option>Female</option><option>Male</option><option>Other</option></select>
+        </label>
+        <label>District <input id="regDistrict" placeholder="e.g. Kamrup" /></label>
+        <label>State <input id="regState" placeholder="e.g. Assam" /></label>
+        <label>Language <select id="regLanguage"></select></label>
+        <label>Caregiver Name <input id="regCaregiver" placeholder="Caregiver name" /></label>
+        <label>Caregiver Phone <input id="regPhone" placeholder="Phone number" /></label>
+      </div>
+      <div class="modal-actions">
+        <button class="btn primary" id="regSubmit">Register</button>
+        <button class="btn ghost" id="regCancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reminder modal -->
+  <div class="modal-overlay hidden" id="reminderModal">
+    <div class="modal card">
+      <h2>New Reminder</h2>
+      <div class="modal-form">
+        <label>Type
+          <select id="remType">
+            <option value="medicine">💊 Medicine</option>
+            <option value="hydration">💧 Water</option>
+            <option value="activity">🚶 Activity</option>
+            <option value="appointment">📅 Appointment</option>
+          </select>
+        </label>
+        <label>Title <input id="remTitle" placeholder="e.g. Morning medicine" /></label>
+        <label>Message <textarea id="remMessage" rows="2" placeholder="Take one tablet with water"></textarea></label>
+        <label>Date <input id="remDate" type="date" /></label>
+        <label>Time <input id="remTime" type="time" value="08:00" /></label>
+        <label>Repeat
+          <select id="remRepeat">
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly</option>
+            <option value="once">Once</option>
+          </select>
+        </label>
+      </div>
+      <div class="modal-actions">
+        <button class="btn primary" id="remSubmit">Save</button>
+        <button class="btn ghost" id="remCancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="{{ url_for('static', filename='cognitive.js') }}"></script>
+</body>
+</html>

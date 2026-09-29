@@ -1,0 +1,16 @@
+SwasthGati Preliminary OA Screening Report
+Patient ID: PT-TEST-001
+Name: Test Patient
+Age/Sex: 58 / Female
+Location: Kamrup, Assam
+
+Clinical results
+Pain score: 42.0, Mobility score: 60.0
+Left knee angle: 160.0, Right knee angle: 170.0
+Symmetry: 87.0%
+Risk level: MODERATE
+AI status: AI model not trained / OAI dataset unavailable.
+
+Medical disclaimer: AI-assisted screening only — not a medical diagnosis.
+"
+        f"This preliminary assessment is intended to support field screening and clinical review.

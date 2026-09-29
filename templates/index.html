@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SwasthGati | AI-Assisted Knee Risk Screening</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+  <main class="app-shell">
+    <header class="hero card">
+      <div>
+        <div class="eyebrow">SWASTHGATI</div>
+        <h1>AI-Assisted Knee Risk Screening</h1>
+        <p>Preliminary screening using posture and movement analysis</p>
+      </div>
+      <div class="hero-badge">Real webcam • Photo • Video</div>
+    </header>
+
+    <section class="mode-grid">
+      <button class="mode-card active" data-mode="live">
+        <span class="icon">📷</span>
+        <strong>LIVE CAMERA</strong>
+        <small>Real-time screening</small>
+      </button>
+      <button class="mode-card" data-mode="photo">
+        <span class="icon">📸</span>
+        <strong>UPLOAD PHOTO</strong>
+        <small>Analyze knee image</small>
+      </button>
+      <button class="mode-card" data-mode="video">
+        <span class="icon">🎥</span>
+        <strong>UPLOAD VIDEO</strong>
+        <small>Analyze walking</small>
+      </button>
+    </section>
+
+    <section class="workspace card">
+      <div class="viewer-panel">
+        <div class="viewer-head">
+          <h2 id="viewerTitle">Live Camera Preview</h2>
+          <div class="status-pills">
+            <span class="pill ok" id="cameraStatus">● Camera Connected</span>
+            <span class="pill" id="poseStatus">● Pose Detection Active</span>
+          </div>
+        </div>
+
+        <div class="viewer-stage" id="viewerStage">
+          <div class="video-wrap" id="liveWrap">
+            <video id="cameraVideo" autoplay playsinline muted></video>
+            <canvas id="analysisCanvas"></canvas>
+          </div>
+
+          <div class="upload-wrap hidden" id="photoWrap">
+            <div class="upload-dropzone">
+              <div class="upload-emoji">📸</div>
+              <h3>Upload Knee / Leg Photo</h3>
+              <p>Choose a clear image with the legs visible.</p>
+              <input type="file" id="photoInput" accept="image/*" />
+              <label class="button secondary" for="photoInput">Choose Photo</label>
+              <button class="button primary" id="photoAnalyzeBtn">Analyze</button>
+            </div>
+            <img id="photoPreview" class="result-preview hidden" alt="Uploaded photo preview" />
+          </div>
+
+          <div class="upload-wrap hidden" id="videoWrap">
+            <div class="upload-dropzone">
+              <div class="upload-emoji">🎥</div>
+              <h3>Upload Walking Video</h3>
+              <p>Choose a walking or movement video.</p>
+              <input type="file" id="videoInput" accept="video/*" />
+              <label class="button secondary" for="videoInput">Choose Video</label>
+              <button class="button primary" id="videoAnalyzeBtn">Analyze</button>
+            </div>
+            <video id="videoPreview" class="result-preview hidden" controls></video>
+          </div>
+        </div>
+      </div>
+
+      <aside class="analysis-panel">
+        <h2 id="analysisTitle">Live Analysis</h2>
+        <div class="metric-grid">
+          <article class="metric card-soft">
+            <span>LEFT KNEE</span>
+            <strong id="leftKneeValue">--</strong>
+            <small>Knee Angle</small>
+          </article>
+          <article class="metric card-soft">
+            <span>RIGHT KNEE</span>
+            <strong id="rightKneeValue">--</strong>
+            <small>Knee Angle</small>
+          </article>
+          <article class="metric card-soft">
+            <span>SYMMETRY</span>
+            <strong id="symmetryValue">--</strong>
+            <small>Left / Right</small>
+          </article>
+          <article class="metric card-soft">
+            <span>MOVEMENT</span>
+            <strong id="movementValue">--</strong>
+            <small>Current pattern</small>
+          </article>
+        </div>
+
+        <div class="bar-card card-soft">
+          <div class="bar-row"><span>Symmetry</span><span id="symmetryLabel">--</span></div>
+          <div class="progress"><div class="progress-fill" id="symmetryBar" style="width:0%"></div></div>
+        </div>
+
+        <div class="result-card">
+          <div class="result-head">PRELIMINARY SCREENING RESULT</div>
+          <div class="risk-level" id="riskLevel">LOW RISK</div>
+          <div class="risk-markers" id="riskMarkers">Possible markers: none detected</div>
+          <div class="risk-region" id="riskRegion">Possible region: insufficient data</div>
+          <div class="disclaimer">AI-assisted screening only — not a medical diagnosis.</div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="module-grid">
+      <div class="card module-panel">
+        <h2>Patient Registration</h2>
+        <form id="patientForm" class="patient-form">
+          <div class="field-grid">
+            <label>Patient ID<input id="patientId" name="patient_id" required /></label>
+            <label>Name<input id="patientName" name="name" required /></label>
+            <label>Age<input id="patientAge" name="age" type="number" min="0" max="120" /></label>
+            <label>Sex<select id="patientSex" name="sex"><option value="">Select</option><option>Male</option><option>Female</option><option>Other</option></select></label>
+            <label>District<input id="patientDistrict" name="district" /></label>
+            <label>State<input id="patientState" name="state" /></label>
+            <label>Occupation<input id="patientOccupation" name="occupation" /></label>
+            <label>Location<input id="patientLocation" name="location" /></label>
+            <label>Height (cm)<input id="patientHeight" name="height" type="number" min="0" /></label>
+            <label>Weight (kg)<input id="patientWeight" name="weight" type="number" min="0" /></label>
+            <label>BMI<input id="patientBMI" name="bmi" type="number" step="0.1" /></label>
+          </div>
+          <label>Relevant OA history<textarea id="patientHistory" name="oa_history" rows="2"></textarea></label>
+          <div class="button-row">
+            <button type="submit" class="button primary">Register Patient</button>
+            <button type="button" id="loadPatientBtn" class="button secondary">Load Patient</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="card module-panel">
+        <h2>Screening Dashboard</h2>
+        <div class="stats-grid">
+          <div class="stat-card"><span>Total Patients</span><strong id="totalPatients">0</strong></div>
+          <div class="stat-card"><span>Total Screenings</span><strong id="totalScreenings">0</strong></div>
+          <div class="stat-card"><span>Today</span><strong id="todayScreenings">0</strong></div>
+          <div class="stat-card"><span>Pending Sync</span><strong id="pendingSync">0</strong></div>
+          <div class="stat-card"><span>Low Risk</span><strong id="lowRisk">0</strong></div>
+          <div class="stat-card"><span>Moderate</span><strong id="moderateRisk">0</strong></div>
+          <div class="stat-card"><span>High Risk</span><strong id="highRisk">0</strong></div>
+          <div class="stat-card"><span>Synced</span><strong id="syncedRecords">0</strong></div>
+        </div>
+        <div class="disclaimer-box">Offline-first screening enabled. Synchronization will occur when connectivity returns.</div>
+      </div>
+    </section>
+
+    <footer class="controls card">
+      <div class="control-group" id="liveControls">
+        <button class="button primary" id="startCameraBtn">Start Camera</button>
+        <button class="button secondary" id="startScreeningBtn">Start Screening</button>
+        <button class="button ghost" id="stopScreeningBtn">Stop Screening</button>
+        <button class="button primary" id="saveRecordBtn">Save Record</button>
+      </div>
+      <div class="status-text" id="statusText">Ready. Select a mode to begin.</div>
+    </footer>
+  </main>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
